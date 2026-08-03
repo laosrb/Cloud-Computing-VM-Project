@@ -1,44 +1,3 @@
-"""
-dijkstra_spark.py
-
-Parallel Single-Source Shortest Path (SSSP) on Apache Spark using RDDs.
-
-Dijkstra's algorithm is inherently sequential (it repeatedly picks the single
-closest un-visited vertex), so it does not parallelize well as written. The
-standard way to compute SSSP in a data-parallel engine like Spark is an
-iterative "relaxation" approach in the spirit of Bellman-Ford / Dijkstra's
-core relaxation step:
-
-    for each iteration:
-        for every edge (u, v, w):
-            dist[v] = min(dist[v], dist[u] + w)
-
-This is repeated, in parallel across all edges via RDD transformations,
-until no distance changes in an iteration (convergence) or a safe upper
-bound on the number of iterations (num_nodes - 1, same bound Bellman-Ford
-uses) is reached. Because Spark has no shared mutable priority queue across
-executors, this relaxation-until-convergence formulation is the accepted
-substitute for "Dijkstra on Spark" in distributed-systems coursework, and it
-produces the same shortest-path distances as classic Dijkstra on graphs with
-non-negative edge weights.
-
-Usage:
-    spark-submit dijkstra_spark.py <input_file> <source_node> [output_file]
-
-Input file format:
-    num_nodes num_edges
-    u1 v1 weight1
-    u2 v2 weight2
-    ...
-
-Output format (printed and optionally written to output_file):
-    Shortest distances from node <source>:
-    Node 0: 0
-    Node 1: 7
-    ...
-    Node k: INF        (if unreachable)
-"""
-
 import sys
 import time
 from pyspark import SparkContext, SparkConf
@@ -57,12 +16,6 @@ def parse_args():
 
 
 def load_graph(sc, input_file):
-    """
-    Reads the edge-list file. The first line (num_nodes num_edges) is used
-    only to know how many nodes exist (in case some nodes have no outgoing
-    OR incoming edges and would otherwise never appear in the edge RDD).
-    Returns: (num_nodes, edges_rdd) where edges_rdd contains (u, (v, w)).
-    """
     raw = sc.textFile(input_file)
     header = raw.first()
     num_nodes, num_edges = map(int, header.split())
@@ -78,20 +31,6 @@ def load_graph(sc, input_file):
 
 
 def run_sssp(sc, num_nodes, edges, source, max_iterations=None):
-    """
-    Iterative relaxation SSSP over RDDs.
-
-    distances: RDD of (node_id, dist)
-    edges:     RDD of (u, (v, w))   -- kept fixed and re-joined every round
-
-    Each round:
-      1. Join distances with edges on the source vertex u.
-      2. Compute candidate distance dist[u] + w for the target vertex v.
-      3. Union with current distances and reduceByKey(min) so each node
-         keeps the smallest distance seen so far.
-      4. Stop when the total distance sum stops decreasing (convergence)
-         or after max_iterations rounds.
-    """
     if max_iterations is None:
         max_iterations = num_nodes - 1 if num_nodes > 1 else 1
 
