@@ -15,7 +15,7 @@ This project implements a distributed version of **Dijkstra's Shortest Path Algo
 | `scale_test.py` | Runs local performance and correctness comparisons against a standard heap-based Dijkstra implementation. |
 | `verify_logic.py` | Verifies the algorithm using the small 5-node example provided in the assignment. |
 | `data/weighted_graph.txt` | Sample graph containing **10,000 nodes** and **100,000 weighted edges**. |
-| `report.docx` | Project report covering implementation details, testing, performance, and challenges encountered. |
+| `Programming Assignment Report.pdf` | Project report covering implementation details, testing, performance, and challenges encountered. |
 
 ---
 
