@@ -1,17 +1,3 @@
-"""
-generate_graph.py
-
-Generates a random weighted directed graph in the edge-list format required
-by dijkstra_spark.py, e.g. the assignment's weighted_graph.txt with
-10,000 nodes and 100,000 edges.
-
-Usage:
-    python generate_graph.py <num_nodes> <num_edges> <output_file> [max_weight] [seed]
-
-Example (matches the assignment's test file size):
-    python generate_graph.py 10000 100000 weighted_graph.txt 20 42
-"""
-
 import random
 import sys
 
