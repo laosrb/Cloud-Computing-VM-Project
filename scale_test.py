@@ -35,7 +35,6 @@ def classic_dijkstra(num_nodes, edges, source):
 
 
 def relaxation_sssp(num_nodes, edges, source, max_iters=None):
-    """Mirrors the Spark RDD relaxation logic (join+filter+map, reduceByKey min)."""
     if max_iters is None:
         max_iters = num_nodes - 1
     dist = [INF] * num_nodes
